@@ -1,43 +1,66 @@
 package model.customer;
 
+import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author joseneto
- *
- */
 public class Customer {
-
-    private static final String EMAIL_REGEX_PATTERN = "^(.+)@(.+).(.+)$";
-
     private final String firstName;
     private final String lastName;
     private final String email;
 
-    public Customer(final String firstName, final String lastName, final String email) {
-        this.isValidEmail(email);
+    public Customer(String firstName, String lastName, String email) {
+        validateEmail(email);
 
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
     }
 
-    private void isValidEmail(final String email) {
-        Pattern pattern = Pattern.compile(EMAIL_REGEX_PATTERN);
+    private void validateEmail(String email) {
+        String regex = "^(.+)@(.+).(.+)$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(email);
 
-        if(!pattern.matcher(email).matches()) {
-            throw new IllegalArgumentException("Invalid email");
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid email format");
         }
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
     public String getEmail() {
-        return this.email;
+        return email;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName, email);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Customer other = (Customer) obj;
+        return Objects.equals(firstName, other.firstName)
+                && Objects.equals(lastName, other.lastName)
+                && Objects.equals(email, other.email);
     }
 
     @Override
     public String toString() {
-        return "First Name: " + this.firstName
-                + " Last Name: " + this.lastName
-                + " Email: " + this.email;
+        return "Customer: " + firstName + " " + lastName + "\n"
+                + "Email: " + email;
     }
 }

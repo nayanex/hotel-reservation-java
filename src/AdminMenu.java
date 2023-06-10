@@ -1,160 +1,92 @@
-import api.AdminResource;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Scanner;
+
 import model.customer.Customer;
 import model.room.IRoom;
+import api.AdminResource;
 import model.room.Room;
 import model.room.enums.RoomType;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Scanner;
-
-/**
- * @author joseneto
- *
- */
 public class AdminMenu {
+    private static final int OPTION_SEE_ALL_CUSTOMERS = 1;
+    private static final int OPTION_SEE_ALL_ROOMS = 2;
+    private static final int OPTION_SEE_ALL_RESERVATIONS = 3;
+    private static final int OPTION_ADD_ROOM = 4;
+    private static final int OPTION_BACK_TO_MAIN_MENU = 5;
 
-    private static final AdminResource adminResource = AdminResource.getSingleton();
+    public static void displayMenu() {
+        Scanner scanner = new Scanner(System.in);
+        int choice;
 
-    public static void adminMenu() {
-        String line = "";
-        final Scanner scanner = new Scanner(System.in);
+        do {
+            System.out.println("\nAdmin Menu");
+            System.out.println("1. See all Customers");
+            System.out.println("2. See all Rooms");
+            System.out.println("3. See all Reservations");
+            System.out.println("4. Add a Room");
+            System.out.println("5. Back to Main Menu");
+            System.out.print("Enter your choice: ");
+            System.out.print("Enter your choice (1-5): ");
+            choice = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline character
 
-        printMenu();
+            switch (choice) {
+                case OPTION_SEE_ALL_CUSTOMERS -> seeAllCustomers();
+                case OPTION_SEE_ALL_ROOMS -> seeAllRooms();
+                case OPTION_SEE_ALL_RESERVATIONS -> seeAllReservations();
+                case OPTION_ADD_ROOM -> addRoom();
+                case OPTION_BACK_TO_MAIN_MENU -> MainMenu.displayMenu();
+                default -> System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != OPTION_BACK_TO_MAIN_MENU);
+    }
 
-        try {
-            do {
-                line = scanner.nextLine();
-
-                if (line.length() == 1) {
-                    switch (line.charAt(0)) {
-                        case '1':
-                            displayAllCustomers();
-                            break;
-                        case '2':
-                            displayAllRooms();
-                            break;
-                        case '3':
-                            displayAllReservations();
-                            break;
-                        case '4':
-                            addRoom();
-                            break;
-                        case '5':
-                            MainMenu.printMainMenu();
-                            break;
-                        default:
-                            System.out.println("Unknown action\n");
-                            break;
-                    }
-                } else {
-                    System.out.println("Error: Invalid action\n");
-                }
-            } while (line.charAt(0) != '5' || line.length() != 1);
-        } catch (StringIndexOutOfBoundsException ex) {
-            System.out.println("Empty input received. Exiting program...");
+    private static void seeAllCustomers() {
+        Collection<Customer> customers = AdminResource.getAllCustomers();
+        System.out.println("\nAll Customers:");
+        for (Customer customer : customers) {
+            System.out.println(customer);
         }
     }
 
-    private static void printMenu() {
-        System.out.print("\nAdmin Menu\n" +
-                "--------------------------------------------\n" +
-                "1. See all Customers\n" +
-                "2. See all Rooms\n" +
-                "3. See all Reservations\n" +
-                "4. Add a Room\n" +
-                "5. Back to Main Menu\n" +
-                "--------------------------------------------\n" +
-                "Please select a number for the menu option:\n");
+    private static void seeAllRooms() {
+        Collection<IRoom> rooms = AdminResource.getAllRooms();
+        System.out.println("\nAll Rooms:");
+        for (IRoom room : rooms) {
+            System.out.println(room);
+        }
+    }
+
+    private static void seeAllReservations() {
+        AdminResource.displayAllReservations();
     }
 
     private static void addRoom() {
-        final Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
+        List<IRoom> rooms = new ArrayList<>();
 
-        System.out.println("Enter room number:");
-        final String roomNumber = scanner.nextLine();
+        System.out.println("Enter the number of rooms to add:");
+        int count = Integer.parseInt(scanner.nextLine());
 
-        System.out.println("Enter price per night:");
-        final double roomPrice = enterRoomPrice(scanner);
+        for (int i = 0; i < count; i++) {
+            System.out.println("Enter room number:");
+            String roomNumber = scanner.nextLine();
 
-        System.out.println("Enter room type: 1 for single bed, 2 for double bed:");
-        final RoomType roomType = enterRoomType(scanner);
+            System.out.println("Enter room price:");
+            double price = Double.parseDouble(scanner.nextLine());
 
-        final Room room = new Room(roomNumber, roomPrice, roomType);
+            System.out.println("Enter room type (SINGLE/DOUBLE):");
+            String roomTypeString = scanner.nextLine();
+            RoomType roomType = RoomType.valueOf(roomTypeString);
 
-        adminResource.addRoom(Collections.singletonList(room));
-        System.out.println("Room added successfully!");
-
-        System.out.println("Would like to add another room? Y/N");
-        addAnotherRoom();
-    }
-
-    private static double enterRoomPrice(final Scanner scanner) {
-        try {
-            return Double.parseDouble(scanner.nextLine());
-        } catch (NumberFormatException exp) {
-            System.out.println("Invalid room price! Please, enter a valid double number. " +
-                    "Decimals should be separated by point (.)");
-            return enterRoomPrice(scanner);
+            IRoom room = new Room(roomNumber, price, roomType);
+            rooms.add(room);
         }
-    }
 
-    private static RoomType enterRoomType(final Scanner scanner) {
-        try {
-            return RoomType.valueOfLabel(scanner.nextLine());
-        } catch (IllegalArgumentException exp) {
-            System.out.println("Invalid room type! Please, choose 1 for single bed or 2 for double bed:");
-            return enterRoomType(scanner);
-        }
-    }
+        AdminResource.addRoom(rooms);
 
-    private static void addAnotherRoom() {
-        final Scanner scanner = new Scanner(System.in);
-
-        try {
-            String anotherRoom;
-
-            anotherRoom = scanner.nextLine();
-
-            while ((anotherRoom.charAt(0) != 'Y' && anotherRoom.charAt(0) != 'N')
-                    || anotherRoom.length() != 1) {
-                System.out.println("Please enter Y (Yes) or N (No)");
-                anotherRoom = scanner.nextLine();
-            }
-
-            if (anotherRoom.charAt(0) == 'Y') {
-                addRoom();
-            } else if (anotherRoom.charAt(0) == 'N') {
-                printMenu();
-            } else {
-                addAnotherRoom();
-            }
-        } catch (StringIndexOutOfBoundsException ex) {
-            addAnotherRoom();
-        }
-    }
-
-    private static void displayAllRooms() {
-        Collection<IRoom> rooms = adminResource.getAllRooms();
-
-        if(rooms.isEmpty()) {
-            System.out.println("No rooms found.");
-        } else {
-            adminResource.getAllRooms().forEach(System.out::println);
-        }
-    }
-
-    private static void displayAllCustomers() {
-        Collection<Customer> customers = adminResource.getAllCustomers();
-
-        if (customers.isEmpty()) {
-            System.out.println("No customers found.");
-        } else {
-            adminResource.getAllCustomers().forEach(System.out::println);
-        }
-    }
-
-    private static void displayAllReservations() {
-        adminResource.displayAllReservations();
+        System.out.println("Rooms added successfully.");
     }
 }

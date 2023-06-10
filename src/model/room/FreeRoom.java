@@ -2,19 +2,15 @@ package model.room;
 
 import model.room.enums.RoomType;
 
-/**
- * @author joseneto
- *
- */
 public class FreeRoom extends Room {
 
-    public FreeRoom(final String roomNumber, final RoomType enumeration) {
-        super(roomNumber, 0.0, enumeration);
+    public FreeRoom(String roomNumber, RoomType roomType) {
+        super(roomNumber, 0.0, roomType);
     }
 
     @Override
     public String toString() {
-        return "FreeRoom => " + super.toString();
+        return super.toString() + "\n"
+                + "Price: Free";
     }
-
 }
