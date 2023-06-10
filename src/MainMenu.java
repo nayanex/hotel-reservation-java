@@ -3,6 +3,7 @@ import model.reservation.Reservation;
 import model.room.IRoom;
 
 import java.util.Collection;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -21,33 +22,39 @@ public class MainMenu {
         int choice;
 
         do {
-            System.out.println("========== Main Menu ==========");
-            System.out.println("1. Find and reserve a room");
-            System.out.println("2. See my reservations");
-            System.out.println("3. Create an account");
-            System.out.println("4. Admin");
-            System.out.println("5. Exit");
-            System.out.println("===============================");
+            try {
+                System.out.println("========== Main Menu ==========");
+                System.out.println("1. Find and reserve a room");
+                System.out.println("2. See my reservations");
+                System.out.println("3. Create an account");
+                System.out.println("4. Admin");
+                System.out.println("5. Exit");
+                System.out.println("===============================");
 
-            System.out.print("Enter your choice (1-5): ");
-            choice = scanner.nextInt();
-            scanner.nextLine(); // Consume the newline character
+                System.out.print("Enter your choice (1-5): ");
+                choice = scanner.nextInt();
+                scanner.nextLine(); // Consume the newline character
 
-            switch (choice) {
-                case OPTION_FIND_AND_RESERVE ->
-                    // Handle the "Find and reserve a room" option
-                        findAndReserveRoom();
-                case OPTION_SEE_MY_RESERVATIONS ->
-                    // Handle the "See my reservations" option
-                        seeMyReservations();
-                case OPTION_CREATE_ACCOUNT ->
-                    // Handle the "Create an account" option
-                        createAccount();
-                case OPTION_ADMIN ->
-                    // Handle the "Admin" option
-                        AdminMenu.displayMenu();
-                case OPTION_EXIT -> System.out.println("Exiting the application...");
-                default -> System.out.println("Invalid choice. Please try again.");
+                switch (choice) {
+                    case OPTION_FIND_AND_RESERVE ->
+                        // Handle the "Find and reserve a room" option
+                            findAndReserveRoom();
+                    case OPTION_SEE_MY_RESERVATIONS ->
+                        // Handle the "See my reservations" option
+                            seeMyReservations();
+                    case OPTION_CREATE_ACCOUNT ->
+                        // Handle the "Create an account" option
+                            createAccount();
+                    case OPTION_ADMIN ->
+                        // Handle the "Admin" option
+                            AdminMenu.displayMenu();
+                    case OPTION_EXIT -> System.out.println("Exiting the application...");
+                    default -> System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a valid choice (1-5).");
+                scanner.nextLine(); // Consume the invalid input
+                choice = 0; // Set choice to an invalid value to continue the loop
             }
         } while (choice != OPTION_EXIT);
     }
@@ -126,6 +133,11 @@ public class MainMenu {
             } else {
                 System.out.print("Enter your email: ");
                 String customerEmail = scanner.nextLine();
+                System.out.print("Enter check-in date (MM/dd/yyyy): ");
+                checkInDate = parseDate(scanner.nextLine());
+
+                System.out.print("Enter check-out date (MM/dd/yyyy): ");
+                checkOutDate = parseDate(scanner.nextLine());
 
                 // Call the reservation service's method to reserve the room
                 Reservation reservation = HotelResource.bookARoom(customerEmail, selectedRoom, checkInDate, checkOutDate);

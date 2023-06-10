@@ -8,7 +8,7 @@ import java.util.*;
 public class ReservationService {
     private static final int CONFLICT_RESERVATION_PLUS_DAYS = 7;
     private static final ReservationService instance = new ReservationService();
-    private final List<Reservation> reservations = new ArrayList<>();
+    private final Set<Reservation> reservations = new HashSet<>();
     private final Map<String, IRoom> rooms = new HashMap<>();
 
     private ReservationService() {
@@ -87,6 +87,8 @@ public class ReservationService {
         if (availableRooms.isEmpty()) {
             Date recommendedCheckInDate = addDays(checkInDate, CONFLICT_RESERVATION_PLUS_DAYS);
             Date recommendedCheckOutDate = addDays(checkOutDate, CONFLICT_RESERVATION_PLUS_DAYS);
+            System.out.println("No available rooms for the specified date range.");
+            System.out.println(" Checking alternative dates in the following 7 days, between " + recommendedCheckInDate + " and " + recommendedCheckOutDate + ".");
             availableRooms = findAvailableRooms(recommendedCheckInDate, recommendedCheckOutDate);
         }
 
@@ -105,22 +107,22 @@ public class ReservationService {
         return availableRooms;
     }
 
+    private boolean isRoomReserved(IRoom room, Date checkInDate, Date checkOutDate) {
+        for (Reservation reservation : reservations) {
+            if (reservation.getRoom().equals(room)) {
+                // Check if the reservation's date range overlaps with the specified date range
+                if (reservation.getCheckOutDate().after(checkInDate) && reservation.getCheckInDate().before(checkOutDate)) {
+                    return true; // Room is already reserved for the specified date range
+                }
+            }
+        }
+        return false; // Room is available
+    }
+
     private Collection<IRoom> findRecommendedRooms(Date checkInDate, Date checkOutDate) {
         Date recommendedCheckInDate = addDays(checkInDate, CONFLICT_RESERVATION_PLUS_DAYS);
         Date recommendedCheckOutDate = addDays(checkOutDate, CONFLICT_RESERVATION_PLUS_DAYS);
         return findAvailableRooms(recommendedCheckInDate, recommendedCheckOutDate);
-    }
-
-    private boolean isRoomReserved(IRoom room, Date checkInDate, Date checkOutDate) {
-        // Check if the room is already reserved for the given date range
-        for (Reservation reservation : reservations) {
-            if (reservation.getRoom().equals(room) &&
-                    !checkOutDate.before(reservation.getCheckInDate()) &&
-                    !checkInDate.after(reservation.getCheckOutDate())) {
-                return true; // Room is already reserved for the specified date range
-            }
-        }
-        return false; // Room is available
     }
 
     private Date addDays(Date date, int days) {

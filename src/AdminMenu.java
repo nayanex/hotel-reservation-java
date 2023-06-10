@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import model.customer.Customer;
 import model.room.IRoom;
@@ -21,24 +18,29 @@ public class AdminMenu {
         int choice;
 
         do {
-            System.out.println("\nAdmin Menu");
-            System.out.println("1. See all Customers");
-            System.out.println("2. See all Rooms");
-            System.out.println("3. See all Reservations");
-            System.out.println("4. Add a Room");
-            System.out.println("5. Back to Main Menu");
-            System.out.print("Enter your choice: ");
-            System.out.print("Enter your choice (1-5): ");
-            choice = scanner.nextInt();
-            scanner.nextLine(); // Consume the newline character
+            try {
+                System.out.println("\nAdmin Menu");
+                System.out.println("1. See all Customers");
+                System.out.println("2. See all Rooms");
+                System.out.println("3. See all Reservations");
+                System.out.println("4. Add a Room");
+                System.out.println("5. Back to Main Menu");
+                System.out.print("Enter your choice (1-5): ");
+                choice = scanner.nextInt();
+                scanner.nextLine(); // Consume the newline character
 
-            switch (choice) {
-                case OPTION_SEE_ALL_CUSTOMERS -> seeAllCustomers();
-                case OPTION_SEE_ALL_ROOMS -> seeAllRooms();
-                case OPTION_SEE_ALL_RESERVATIONS -> seeAllReservations();
-                case OPTION_ADD_ROOM -> addRoom();
-                case OPTION_BACK_TO_MAIN_MENU -> MainMenu.displayMenu();
-                default -> System.out.println("Invalid choice. Please try again.");
+                switch (choice) {
+                    case OPTION_SEE_ALL_CUSTOMERS -> seeAllCustomers();
+                    case OPTION_SEE_ALL_ROOMS -> seeAllRooms();
+                    case OPTION_SEE_ALL_RESERVATIONS -> seeAllReservations();
+                    case OPTION_ADD_ROOM -> addRoom();
+                    case OPTION_BACK_TO_MAIN_MENU -> MainMenu.displayMenu();
+                    default -> System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a valid choice (1-5).");
+                scanner.nextLine(); // Consume the invalid input
+                choice = 0; // Set choice to an invalid value to continue the loop
             }
         } while (choice != OPTION_BACK_TO_MAIN_MENU);
     }
