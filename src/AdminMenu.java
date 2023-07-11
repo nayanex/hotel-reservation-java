@@ -5,6 +5,7 @@ import model.room.IRoom;
 import api.AdminResource;
 import model.room.Room;
 import model.room.enums.RoomType;
+import utils.InputUtils;
 
 public class AdminMenu {
     private static final int OPTION_SEE_ALL_CUSTOMERS = 1;
@@ -69,19 +70,14 @@ public class AdminMenu {
         Scanner scanner = new Scanner(System.in);
         List<IRoom> rooms = new ArrayList<>();
 
-        System.out.println("Enter the number of rooms to add:");
-        int count = Integer.parseInt(scanner.nextLine());
+        int roomCount = InputUtils.getInput("Enter the number of rooms to add:", Integer.class);
+        System.out.println("Number of rooms: " + roomCount);
 
-        for (int i = 0; i < count; i++) {
-            System.out.println("Enter room number:");
-            String roomNumber = scanner.nextLine();
 
-            System.out.println("Enter room price:");
-            double price = Double.parseDouble(scanner.nextLine());
-
-            System.out.println("Enter room type (SINGLE/DOUBLE):");
-            String roomTypeString = scanner.nextLine();
-            RoomType roomType = RoomType.valueOf(roomTypeString);
+        for (int i = 0; i < roomCount; i++) {
+            String roomNumber = InputUtils.getInput("Enter room number:", String.class);
+            double price = InputUtils.getInput("Enter room price:", Double.class);
+            RoomType roomType = InputUtils.getInput("Enter the room type (SINGLE or DOUBLE):", RoomType.class);
 
             IRoom room = new Room(roomNumber, price, roomType);
             rooms.add(room);

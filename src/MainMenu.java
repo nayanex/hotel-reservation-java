@@ -1,13 +1,11 @@
 import api.HotelResource;
 import model.reservation.Reservation;
 import model.room.IRoom;
+import utils.InputUtils;
 
 import java.util.Collection;
 import java.util.InputMismatchException;
 import java.util.Scanner;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainMenu {
@@ -48,7 +46,7 @@ public class MainMenu {
                     case OPTION_ADMIN ->
                         // Handle the "Admin" option
                             AdminMenu.displayMenu();
-                    case OPTION_EXIT -> System.out.println("Exiting the application...");
+                    case OPTION_EXIT -> exitApplication();
                     default -> System.out.println("Invalid choice. Please try again.");
                 }
             } catch (InputMismatchException e) {
@@ -60,11 +58,8 @@ public class MainMenu {
     }
 
     private static void seeMyReservations() {
-        Scanner scanner = new Scanner(System.in);
-
         System.out.println("========== See My Reservations ==========");
-        System.out.print("Enter your email: ");
-        String customerEmail = scanner.nextLine();
+        String customerEmail = InputUtils.getEmailInput("Enter your email:");
 
         // Call the reservation service's method to get the customer's reservations
         Collection<Reservation> reservations = HotelResource.getCustomersReservations(customerEmail);
@@ -83,17 +78,10 @@ public class MainMenu {
     }
 
     private static void createAccount() {
-        Scanner scanner = new Scanner(System.in);
-
         System.out.println("========== Create an Account ==========");
-        System.out.print("Enter your email: ");
-        String email = scanner.nextLine();
-
-        System.out.print("Enter your first name: ");
-        String firstName = scanner.nextLine();
-
-        System.out.print("Enter your last name: ");
-        String lastName = scanner.nextLine();
+        String email = InputUtils.getEmailInput("Enter your email:");
+        String firstName = InputUtils.getInput("Enter your first name: ", String.class);
+        String lastName = InputUtils.getInput("Enter your last name: ", String.class);
 
         // Call the hotel resource's method to create a customer account
         HotelResource.createACustomer(firstName, lastName, email);
@@ -103,14 +91,9 @@ public class MainMenu {
     }
 
     private static void findAndReserveRoom() {
-        Scanner scanner = new Scanner(System.in);
-
         System.out.println("========== Find and Reserve a Room ==========");
-        System.out.print("Enter check-in date (MM/dd/yyyy): ");
-        Date checkInDate = parseDate(scanner.nextLine());
-
-        System.out.print("Enter check-out date (MM/dd/yyyy): ");
-        Date checkOutDate = parseDate(scanner.nextLine());
+        Date checkInDate = InputUtils.getDateInput("Enter check-in date (MM/dd/yyyy): ", "MM/dd/yyyy");
+        Date checkOutDate = InputUtils.getDateInput("Enter check-out date (MM/dd/yyyy): ", "MM/dd/yyyy");
 
         // Call the reservation service's method to find available rooms
         Collection<IRoom> availableRooms = HotelResource.findARoom(checkInDate, checkOutDate);
@@ -124,20 +107,16 @@ public class MainMenu {
                 System.out.println(room);
             }
 
-            System.out.print("Enter the room number to reserve: ");
-            String roomNumber = scanner.nextLine();
+            String roomNumber = InputUtils.getInput("Enter the room number to reserve: ", String.class);
 
             IRoom selectedRoom = HotelResource.getRoom(roomNumber);
             if (selectedRoom == null) {
                 System.out.println("Invalid room number.");
             } else {
-                System.out.print("Enter your email: ");
-                String customerEmail = scanner.nextLine();
-                System.out.print("Enter check-in date (MM/dd/yyyy): ");
-                checkInDate = parseDate(scanner.nextLine());
+                String customerEmail = InputUtils.getEmailInput("Enter your email:");
 
-                System.out.print("Enter check-out date (MM/dd/yyyy): ");
-                checkOutDate = parseDate(scanner.nextLine());
+                checkInDate = InputUtils.getDateInput("Enter check-in date (MM/dd/yyyy): ", "MM/dd/yyyy");
+                checkOutDate = InputUtils.getDateInput("Enter check-out date (MM/dd/yyyy): ", "MM/dd/yyyy");
 
                 // Call the reservation service's method to reserve the room
                 Reservation reservation = HotelResource.bookARoom(customerEmail, selectedRoom, checkInDate, checkOutDate);
@@ -152,14 +131,8 @@ public class MainMenu {
         System.out.println();
     }
 
-    private static Date parseDate(String dateString) {
-        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-        try {
-            return dateFormat.parse(dateString);
-        } catch (ParseException e) {
-            System.out.println("Invalid date format. Please try again.");
-            return null;
-        }
+    private static void exitApplication() {
+        System.out.println("Exiting the application...");
+        System.exit(0);
     }
-
 }
